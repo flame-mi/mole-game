@@ -25,7 +25,11 @@ class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), unique=True, nullable=False)
     best_score = db.Column(db.Integer, default=0)
-
+    
+# 必须加这一段，保证每次启动都自动建表
+with app.app_context():
+    db.create_all()
+    
 # 获取当前登录用户
 def get_current_user():
     user_id = session.get("user_id")
@@ -130,12 +134,11 @@ def submit_score():
         "new_record": is_new_record,
         "leaderboard": leaderboard,
     })
-# 首次启动时创建数据库表
-    with app.app_context():
-        db.create_all()
+
 if __name__ == "__main__":
     
 
     # 启动开发服务器，debug 方便新手调试
     app.run(debug=True)
+
 
