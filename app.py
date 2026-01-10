@@ -130,11 +130,12 @@ def submit_score():
         "new_record": is_new_record,
         "leaderboard": leaderboard,
     })
-
-if __name__ == "__main__":
-    # 首次启动时创建数据库表
+# 首次启动时创建数据库表
     with app.app_context():
         db.create_all()
+if __name__ == "__main__":
+    
 
     # 启动开发服务器，debug 方便新手调试
     app.run(debug=True)
+
