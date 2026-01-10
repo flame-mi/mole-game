@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
@@ -15,6 +15,8 @@
       --mole: #6b4f3b;
       --mole-light: #8a6a52;
       --text: #3b2c2a;
+      --card: #ffffffcc;
+      --border: #f0c6a0;
     }
 
     * {
@@ -33,11 +35,11 @@
     }
 
     .page {
-      width: min(92vw, 720px);
+      width: min(92vw, 760px);
       text-align: center;
       padding: 24px;
       border-radius: 24px;
-      background: #ffffffcc;
+      background: var(--card);
       box-shadow: 0 20px 40px rgba(255, 120, 160, 0.25);
       backdrop-filter: blur(6px);
     }
@@ -89,6 +91,65 @@
       color: var(--accent-dark);
     }
 
+    .flash {
+      margin: 10px auto 18px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      background: #fff5d6;
+      border: 2px dashed #ffb455;
+      max-width: 480px;
+      font-weight: bold;
+      color: #a06200;
+    }
+
+    .auth {
+      display: grid;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .auth-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+      border: 2px solid #ffd1df;
+    }
+
+    .auth-card h2 {
+      margin: 0 0 12px;
+      color: var(--accent-dark);
+    }
+
+    .auth-card form {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .auth-card input {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      font-size: 14px;
+    }
+
+    .auth-card button {
+      padding: 8px 10px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .auth-note {
+      font-size: 12px;
+      color: #7c5b58;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(80px, 1fr));
@@ -106,7 +167,7 @@
       overflow: hidden;
       cursor: pointer;
       box-shadow: inset 0 10px 12px rgba(0, 0, 0, 0.2);
-      border: 4px solid #f0c6a0;
+      border: 4px solid var(--border);
     }
 
     .mole {
@@ -145,6 +206,45 @@
       animation: pop 0.3s ease;
     }
 
+    .leaderboard {
+      margin-top: 18px;
+      text-align: left;
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      border: 2px solid #ffd1df;
+      box-shadow: 0 10px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .leaderboard h3 {
+      margin: 0 0 10px;
+      color: var(--accent-dark);
+    }
+
+    .leaderboard ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .leaderboard li {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-weight: bold;
+    }
+
+    .logout-form {
+      display: inline;
+    }
+
+    .logout-form button {
+      border: none;
+      background: transparent;
+      color: var(--accent-dark);
+      cursor: pointer;
+      font-weight: bold;
+    }
+
     @keyframes pop {
       0% {
         transform: translateX(-50%) scale(0.8);
@@ -165,26 +265,73 @@
     }
   </style>
 </head>
-<body>
+<body data-logged-in="{{ 1 if is_logged_in else 0 }}">
   <div class="page">
     <h1>可爱打地鼠</h1>
-    <div class="panel">
-      <div class="info">分数：<span id="score">0</span></div>
-      <div class="info">时间：<span id="time">30</span>s</div>
-      <button id="start-btn">开始游戏</button>
-    </div>
-    <div id="message" class="message">点击“开始游戏”开始挑战！</div>
 
-    <div class="grid" id="grid">
-      <div class="hole" data-index="0"><div class="mole"></div></div>
-      <div class="hole" data-index="1"><div class="mole"></div></div>
-      <div class="hole" data-index="2"><div class="mole"></div></div>
-      <div class="hole" data-index="3"><div class="mole"></div></div>
-      <div class="hole" data-index="4"><div class="mole"></div></div>
-      <div class="hole" data-index="5"><div class="mole"></div></div>
-      <div class="hole" data-index="6"><div class="mole"></div></div>
-      <div class="hole" data-index="7"><div class="mole"></div></div>
-      <div class="hole" data-index="8"><div class="mole"></div></div>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
+    <div id="auth-panel" class="auth" {% if is_logged_in %}style="display:none"{% endif %}>
+      <div class="auth-card">
+        <h2>登录 / 注册</h2>
+        <form action="{{ url_for('login') }}" method="post">
+          <input type="text" name="username" placeholder="用户名" required />
+          <input type="password" name="password" placeholder="密码" required />
+          <button type="submit">登录</button>
+        </form>
+        <form action="{{ url_for('register') }}" method="post">
+          <input type="text" name="username" placeholder="新用户名" required />
+          <input type="password" name="password" placeholder="新密码" required />
+          <button type="submit">注册</button>
+        </form>
+        <div class="auth-note">登录后才能开始游戏和进入排行榜</div>
+      </div>
+    </div>
+
+    <div id="game-panel" {% if not is_logged_in %}style="display:none"{% endif %}>
+      <div class="panel">
+        <div class="info">玩家：{{ username }}</div>
+        <div class="info">分数：<span id="score">0</span></div>
+        <div class="info">时间：<span id="time">30</span>s</div>
+        <button id="start-btn">开始游戏</button>
+        <form class="logout-form" action="{{ url_for('logout') }}" method="post">
+          <button type="submit">退出登录</button>
+        </form>
+      </div>
+      <div id="message" class="message">点击“开始游戏”开始挑战！</div>
+
+      <div class="grid" id="grid">
+        <div class="hole" data-index="0"><div class="mole"></div></div>
+        <div class="hole" data-index="1"><div class="mole"></div></div>
+        <div class="hole" data-index="2"><div class="mole"></div></div>
+        <div class="hole" data-index="3"><div class="mole"></div></div>
+        <div class="hole" data-index="4"><div class="mole"></div></div>
+        <div class="hole" data-index="5"><div class="mole"></div></div>
+        <div class="hole" data-index="6"><div class="mole"></div></div>
+        <div class="hole" data-index="7"><div class="mole"></div></div>
+        <div class="hole" data-index="8"><div class="mole"></div></div>
+      </div>
+
+      <div class="leaderboard">
+        <h3>全服排行榜前 10 名</h3>
+        <ol id="leaderboard">
+          {% for item in leaderboard %}
+            <li>
+              <span>{{ item.username }}</span>
+              <span>{{ item.score }}</span>
+            </li>
+          {% else %}
+            <li>
+              <span>暂无数据</span>
+              <span>0</span>
+            </li>
+          {% endfor %}
+        </ol>
+      </div>
     </div>
   </div>
 
@@ -195,6 +342,8 @@
     const timeEl = document.getElementById("time");
     const startBtn = document.getElementById("start-btn");
     const messageEl = document.getElementById("message");
+    const leaderboardEl = document.getElementById("leaderboard");
+    const isLoggedIn = document.body.dataset.loggedIn === "1";
 
     // 游戏状态
     let score = 0;
@@ -237,6 +386,10 @@
 
     // 开始游戏
     function startGame() {
+      if (!isLoggedIn) {
+        messageEl.textContent = "请先登录再开始游戏";
+        return;
+      }
       if (gameRunning) return;
 
       resetGame();
@@ -269,6 +422,48 @@
       }
 
       messageEl.textContent = `时间到！你的得分是 ${score} 分`;
+      submitScore(score);
+    }
+
+    // 提交分数到后端
+    async function submitScore(finalScore) {
+      try {
+        const response = await fetch("/submit_score", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ score: finalScore }),
+        });
+        const data = await response.json();
+        if (!data.ok) {
+          messageEl.textContent = data.message || "提交失败";
+          return;
+        }
+        const recordText = data.new_record
+          ? `🎉 你刷新了最高分：${data.best}`
+          : `你的最高分仍是 ${data.best}`;
+        messageEl.textContent = `${messageEl.textContent}，${recordText}`;
+        updateLeaderboard(data.leaderboard || []);
+      } catch (error) {
+        messageEl.textContent = "网络有点问题，稍后再试";
+      }
+    }
+
+    // 更新排行榜展示
+    function updateLeaderboard(items) {
+      leaderboardEl.innerHTML = "";
+      if (!items.length) {
+        const emptyItem = document.createElement("li");
+        emptyItem.innerHTML = "<span>暂无数据</span><span>0</span>";
+        leaderboardEl.appendChild(emptyItem);
+        return;
+      }
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${item.username}</span><span>${item.score}</span>`;
+        leaderboardEl.appendChild(li);
+      });
     }
 
     // 点击地鼠加分
